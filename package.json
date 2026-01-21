@@ -1,0 +1,56 @@
+{
+  "name": "@gash21/jokoui-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for joko-ui - Free Open Source Tailwind CSS Components",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "jokoui-mcp-server": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "QUICKSTART.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gash21/jokoui-mcp-server"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.25.3",
+    "bun-types": "^1.3.6",
+    "cheerio": "^1.1.2",
+    "typescript": "^5.0.0",
+    "undici-types": "^7.16.0",
+    "zod": "^4.3.5"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "inspector": "npx @modelcontextprotocol/inspector dist/index.js"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "joko-ui",
+    "tailwind",
+    "tailwindcss",
+    "components",
+    "ui-components"
+  ],
+  "author": "Galih Arghubi <galiharghubi@example.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/gash21/jokoui-mcp-server#readme",
+  "bugs": {
+    "url": "https://github.com/gash21/jokoui-mcp-server/issues"
+  },
+  "devDependencies": {
+    "@types/cheerio": "^0.22.35"
+  }
+}

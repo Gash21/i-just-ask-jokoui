@@ -1,0 +1,9 @@
+node_modules
+dist
+*.log
+.DS_Store
+.env
+*.tgz
+
+DEPLOYMENT.md
+IMPLEMENTATION_SUMMARY.md
