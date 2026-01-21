@@ -14,6 +14,184 @@ This MCP server exposes Joko UI components to AI assistants like Claude Desktop,
 - **Category Filtering**: Filter by Application or Marketing components
 - **Resources**: Access complete component lists and documentation
 
+## OpenCode Installation
+
+### Install for OpenCode AI Assistants
+
+This MCP server can be installed and used with OpenCode-powered AI assistants.
+
+#### Step 1: Install from npm (or build locally)
+
+```bash
+# Option A: Install from npm registry
+npm install @gash21/jokoui-mcp-server
+
+# Option B: Install from local build
+cd jokoui-mcp-server
+npm install
+npm run build
+```
+
+#### Step 2: Configure OpenCode
+
+Add the MCP server to your OpenCode configuration. OpenCode uses `~/.config/opencode/opencode.json`.
+
+**Simplest configuration (recommended):**
+```json
+{
+  "mcp": {
+    "jokoui": {
+      "command": "node",
+      "args": [
+        "/absolute/path/to/jokoui-mcp-server/dist/index.js"
+      ]
+    }
+  }
+}
+```
+
+**Advanced configuration (with environment variables):**
+```json
+{
+  "mcp": {
+    "jokoui": {
+      "command": "node",
+      "args": [
+        "/absolute/path/to/jokoui-mcp-server/dist/index.js"
+      ],
+      "env": {
+        "NODE_ENV": "production",
+        "DEBUG": "false"
+      }
+    }
+  }
+}
+```
+
+**Note:** Use absolute paths. Relative paths may not work correctly with OpenCode.
+
+#### Step 3: Restart OpenCode
+
+After adding the configuration, restart your OpenCode application to load the new MCP server.
+
+#### Step 4: Verify Installation
+
+Test that the MCP server is available in OpenCode by asking:
+
+```
+"Show me all Joko UI components"
+"List available marketing components"
+"Search for authentication components"
+```
+
+If the MCP server is configured correctly, OpenCode will use it to access Joko UI components.
+
+### Available Tools in OpenCode
+
+Once installed, the following tools will be available in OpenCode:
+
+1. **list_components** - Browse all Joko UI components
+2. **search_components** - Search by name, description, or tags
+3. **get_component_code** - Get component code templates
+4. **fetch_component** - Fetch actual code from jokoui.web.id
+5. **implement_component** - Write component code to a file
+6. **fetch_and_implement_component** - Combined fetch + write operation
+
+### Example OpenCode Workflows
+
+**Basic Component Discovery:**
+```
+You: "What Joko UI components are available for building landing pages?"
+
+OpenCode (using MCP):
+- Calls list_components
+- Filters to marketing category
+- Returns: hero-section, feature-grid, pricing-table, footer
+```
+
+**Fetch and Implement Component:**
+```
+You: "Get the hero section component from jokoui.web.id and save it to ./src/components/Hero.tsx"
+
+OpenCode (using MCP):
+1. Uses search_components to find hero-section
+2. Uses fetch_and_implement_component to:
+   - Fetch code from https://jokoui.web.id/components/marketing/hero-section
+   - Parse HTML to extract React/TSX code
+   - Create ./src/components directory
+   - Write component to ./src/components/Hero.tsx
+3. Returns success with file path and bytes written
+```
+
+**Multiple Components Workflow:**
+```
+You: "Search for all authentication-related components and implement them in my project"
+
+OpenCode (using MCP):
+1. Uses search_components with query "auth"
+2. Finds: auth-forms, dashboard (auth-related)
+3. For each component:
+   - Uses fetch_and_implement_component
+   - Saves to ./components/auth/[ComponentName].tsx
+4. Returns: "Created 2 auth components in ./components/auth/"
+```
+
+### Troubleshooting OpenCode Integration
+
+**OpenCode can't find the MCP server:**
+- Verify that the path in your configuration is correct
+- Check that `dist/index.js` exists and is executable
+- Restart OpenCode completely
+- Check OpenCode logs for MCP connection errors
+
+**Tools show up but return errors:**
+- Verify Node.js version is >= 18.0.0
+- Check that all dependencies are installed: `npm install`
+- Test the server manually: `node dist/index.js`
+
+**Permission errors when writing files:**
+- Ensure that the target directory has write permissions
+- Try running OpenCode with elevated permissions if needed
+- Use absolute paths instead of relative paths in outputPath
+
+### MCP Server Configuration Reference
+
+For advanced OpenCode configuration, you can customize:
+
+```json
+{
+  "mcpServers": {
+    "jokoui": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["/path/to/jokoui-mcp-server/dist/index.js"],
+      "cwd": "/working/directory",
+      "env": {
+        "NODE_ENV": "production",
+        "DEBUG": "false"
+      },
+      "timeout": 30000
+    }
+  }
+}
+```
+
+### Performance Considerations
+
+- The MCP server uses stdio transport (fast, low overhead)
+- Component fetching from jokoui.web.id happens on-demand (no caching)
+- File writing operations are synchronous for simplicity
+- For high-volume usage, consider caching components locally
+
+### Security Notes
+
+- The MCP server only fetches from public jokoui.web.id website
+- No authentication or credentials are transmitted
+- File writing respects system permissions
+- Consider using a dedicated Node.js version for production
+
+---
+
 ## Available Tools
 
 ### `list_components`

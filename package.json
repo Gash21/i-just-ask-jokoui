@@ -51,6 +51,7 @@
     "url": "https://github.com/gash21/jokoui-mcp-server/issues"
   },
   "devDependencies": {
-    "@types/cheerio": "^0.22.35"
+    "@types/cheerio": "^0.22.35",
+    "shadcn": "^3.7.0"
   }
 }
