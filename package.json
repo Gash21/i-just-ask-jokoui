@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "I Just Ask Joko UI - MCP server for joko-ui - Free Open Source Tailwind CSS Components",
   "type": "module",
+  "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
   "main": "dist/index.js",
   "bin": {
     "i-just-ask-jokoui": "dist/index.js"
@@ -44,7 +48,7 @@
     "components",
     "ui-components"
   ],
-  "author": "Galih Arghubi <galiharghubi@example.com>",
+  "author": "Galih Arghubi <galiharghubi@gmail.com>",
   "license": "MIT",
   "homepage": "https://github.com/Gash21/i-just-ask-jokoui#readme",
   "bugs": {
