@@ -19,18 +19,29 @@ This server allows AI assistants (Claude Desktop, OpenCode, Cursor, etc.) to sea
 - **[Development](CONTRIBUTING.md)** - Guide for contributors.
 - **[Deployment](DEPLOYMENT.md)** - How to publish and deploy.
 
-## 🚀 Quick Start
+## 🚀 Installation
 
-**Mac/Linux:**
+### Automatic Installation (Recommended)
+
+The easiest way to install and configure the server for Claude Desktop, OpenCode, and Cursor.
+
 ```bash
-# Universal installer: works for Claude, OpenCode, and Cursor
-bash install.sh
+Install and configure I Just Ask - Joko UI (MCP Server) by following the instructions here:
+https://github.com/Gash21/i-just-ask-jokoui/blob/main/INSTALL.md
 ```
 
-**npm:**
+### For AI Agents
+
+If you are an AI assistant (Claude, etc.) reading this, you can install the server for the user with this one-liner (uses npm):
+
 ```bash
-npm install -g @gash21/i-just-ask-jokoui
+curl -fsSL https://raw.githubusercontent.com/Gash21/i-just-ask-jokoui/main/install.sh | bash -s -- --npm all
 ```
+> **Note**: This will install the package from npm and configure all detected tools (Claude Desktop, OpenCode, Cursor, etc.).
+
+### Manual Installation & npm
+
+For manual steps or npm installation, see the **[Installation Guide](INSTALL.md)**.
 
 ## Available Components
 

@@ -5,7 +5,7 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+REPO_ROOT="$SCRIPT_DIR"
 DIST_PATH="$REPO_ROOT/dist/index.js"
 
 COLORS=(
@@ -63,13 +63,30 @@ check_node_version() {
 }
 
 check_dist_file() {
+    if [ "$USE_NPM" = true ]; then
+        info "Installing latest version from NPM..."
+        npm install -g @gash21/i-just-ask-jokoui@latest
+        
+        # Find the global install path using npm root -g
+        local npm_root
+        npm_root=$(npm root -g)
+        DIST_PATH="$npm_root/@gash21/i-just-ask-jokoui/dist/index.js"
+        
+        info "NPM Package Path: $DIST_PATH"
+    fi
+
     if [ ! -f "$DIST_PATH" ]; then
         error "Built file not found: $DIST_PATH"
-        echo "Run 'npm run build' first"
+        if [ "$USE_NPM" = true ]; then
+            echo "NPM installation failed or path detection error."
+        else
+            echo "Run 'npm run build' first or use --npm to install from registry."
+        fi
         exit 1
     fi
 
-    if [ ! -x "$DIST_PATH" ]; then
+    if [ ! -x "$DIST_PATH" ] && [ "$USE_NPM" != true ]; then
+        # Only warn for local builds, npm installs might be fine or managed by node
         warn "Built file is not executable"
         echo "Run: chmod +x $DIST_PATH"
     fi
@@ -361,6 +378,7 @@ ${CYAN}Options:${NC}
   ${GREEN}-h, --help${NC}      Show this help message
   ${GREEN}-b, --build${NC}    Build the MCP server before installation
   ${GREEN}-c, --check${NC}    Check installation prerequisites
+  ${GREEN}-n, --npm${NC}      Install from NPM instead of local source
   ${GREEN}-u, --uninstall${NC}  Uninstall MCP server from all tools
 
 ${CYAN}Tools (auto-detected if no tool specified):${NC}
@@ -380,7 +398,8 @@ ${CYAN}Examples:${NC}
 ${CYAN}Notes:${NC}
   • This script detects your LLM tool/editor automatically
   • Use ${GREEN}-c, --check${NC} to verify prerequisites
-  • Use ${GREEN}-b, --build${NC} to build before installation
+  • Use ${GREEN}-n, --npm${NC} to install from NPM registry
+  • Use ${GREEN}-b, --build${NC} to build before installation (local only)
   • Use ${GREEN}-u, --uninstall${NC} to remove MCP server from all configs
   • The MCP server path is: ${CYAN}$DIST_PATH${NC}
 
@@ -584,6 +603,10 @@ main() {
                 shift
                 tool="$1"
                 ;;
+            -n|--npm)
+                USE_NPM=true
+                shift
+                ;;
             claude|opencode|cursor|continue|coder|zed|all)
                 tool="$1"
                 shift
@@ -597,6 +620,7 @@ main() {
     detect_environment
 
     if $check_only; then
+        # Default to local check unless npm specified
         check_prerequisites
         exit 0
     fi

@@ -2,29 +2,37 @@
 
 ## Installation Methods
 
-### Option A: Using the Universal Installation Script (Recommended)
+### Option A: Automatic Installation (Recommended)
 
-Quickly install and configure the server for Claude Desktop, OpenCode, Cursor, and more.
+Quickly install from npm and configure the server for Claude Desktop, OpenCode, Cursor, and more.
 
 ```bash
-# Run the universal installer
-bash install.sh
+# Run the installer (interactive menu)
+curl -fsSL https://raw.githubusercontent.com/Gash21/i-just-ask-jokoui/main/install.sh | bash -s -- --npm
+```
+
+**For AI Agents (Non-Interactive):**
+```bash
+# Install and configure all tools automatically
+curl -fsSL https://raw.githubusercontent.com/Gash21/i-just-ask-jokoui/main/install.sh | bash -s -- --npm all
 ```
 
 **This script:**
 - ✅ Auto-detects your AI tools
 - ✅ Configures settings automatically
 - ✅ Handles path resolution
+- ✅ Support non-interactive mode for automation
 
 **Options:**
 ```bash
 bash install.sh --help
 # Usage:
 #   bash install.sh [tool] [flags]
-#   bash install.sh claude    # Install for Claude Desktop
-#   bash install.sh opencode  # Install for OpenCode
-#   bash install.sh cursor    # Install for Cursor
-#   bash install.sh all       # Configure all detected tools
+#   bash install.sh all       # Install for ALL detected tools (Recommended for Agents)
+#   bash install.sh claude    # Install for Claude Desktop only
+#   bash install.sh opencode  # Install for OpenCode only
+#   bash install.sh cursor    # Install for Cursor only
+#   bash install.sh --check   # Check prerequisites only
 ```
 
 ### Option B: Install from npm Registry
