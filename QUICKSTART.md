@@ -30,7 +30,7 @@ Add to `claude_desktop_config.json`:
     "jokoui": {
       "command": "node",
       "args": [
-        "/Users/galiharghubi/Work/personal/jokoui-mcp-server/dist/index.js"
+        "/Users/galiharghubi/Work/personal/i-just-ask-jokoui/dist/index.js"
       ]
     }
   }

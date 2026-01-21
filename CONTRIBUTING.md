@@ -2,7 +2,7 @@
 
 ## Project Structure
 ```
-jokoui-mcp-server/
+i-just-ask-jokoui/
 ├── src/
 │   └── index.ts          # Main MCP server implementation
 ├── dist/                 # Compiled JavaScript

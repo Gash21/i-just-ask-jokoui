@@ -1,5 +1,5 @@
 #!/bin/bash
-# Joko UI MCP Server - Universal Installation Script
+# I Just Ask JokoUI MCP Server - Universal Installation Script
 # Installs and configures the MCP server for various LLM tools/editors
 
 set -e
@@ -227,7 +227,7 @@ install_for_cursor() {
 
             cat >> "$rules_file" << 'EOF'
 
-# Joko UI MCP Server Configuration
+# I Just Ask JokoUI MCP Server Configuration
 You can access Joko UI components directly via MCP. The server is located at:
 
 File: $DIST_PATH
@@ -253,7 +253,7 @@ EOF
 
         cat > "$rules_file" << 'EOF'
 
-# Joko UI MCP Server Configuration
+# I Just Ask JokoUI MCP Server Configuration
 You can access Joko UI components directly via MCP. The server is located at:
 
 File: $DIST_PATH
@@ -352,7 +352,7 @@ EOF
 
 show_help() {
     cat << 'EOF'
-${BRIGHT_WHITE}Joko UI MCP Server - Universal Installation${NC}
+${BRIGHT_WHITE}I Just Ask JokoUI MCP Server - Universal Installation${NC}
 
 ${CYAN}Usage:${NC}
   bash install.sh [options] [tool]
@@ -477,7 +477,7 @@ uninstall() {
 }
 
 build_server() {
-    info "Building Joko UI MCP Server..."
+    info "Building I Just Ask JokoUI MCP Server..."
 
     if command -v npm &> /dev/null; then
         npm install
@@ -510,7 +510,7 @@ check_prerequisites() {
 show_menu() {
     echo ""
     echo -e "${CYAN}┌────────────────────────────────────────────────────────┐${NC}"
-    echo -e "${CYAN}│${NC}  ${BRIGHT_WHITE}Joko UI MCP Server - Universal Installation${NC}         ${CYAN}│${NC}"
+    echo -e "${CYAN}│${NC}  ${BRIGHT_WHITE}I Just Ask JokoUI MCP Server - Universal Installation${NC}         ${CYAN}│${NC}"
     echo -e "${CYAN}│${NC}                                                 ${CYAN}│${NC}"
     echo -e "${CYAN}│${NC}  ${CYAN}Select LLM Tool to Configure:${NC}         ${CYAN}│${NC}"
     echo -e "${CYAN}│${NC}                                                 ${CYAN}│${NC}"

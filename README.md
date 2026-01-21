@@ -1,4 +1,4 @@
-# Joko UI MCP Server
+# I Just Ask - Joko UI (MCP Server)
 
 A [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server for [Joko UI](https://jokoui.web.id) - free open source Tailwind CSS components.
 
@@ -29,7 +29,7 @@ bash install.sh
 
 **npm:**
 ```bash
-npm install -g @gash21/jokoui-mcp-server
+npm install -g @gash21/i-just-ask-jokoui
 ```
 
 ## Available Components

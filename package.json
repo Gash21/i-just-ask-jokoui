@@ -1,11 +1,11 @@
 {
-  "name": "@gash21/jokoui-mcp-server",
+  "name": "@gash21/i-just-ask-jokoui",
   "version": "1.0.0",
-  "description": "MCP server for joko-ui - Free Open Source Tailwind CSS Components",
+  "description": "I Just Ask Joko UI - MCP server for joko-ui - Free Open Source Tailwind CSS Components",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "jokoui-mcp-server": "dist/index.js"
+    "i-just-ask-jokoui": "dist/index.js"
   },
   "files": [
     "dist",
@@ -15,7 +15,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/gash21/jokoui-mcp-server"
+    "url": "https://github.com/Gash21/i-just-ask-jokoui"
   },
   "engines": {
     "node": ">=18.0.0"
@@ -46,9 +46,9 @@
   ],
   "author": "Galih Arghubi <galiharghubi@example.com>",
   "license": "MIT",
-  "homepage": "https://github.com/gash21/jokoui-mcp-server#readme",
+  "homepage": "https://github.com/Gash21/i-just-ask-jokoui#readme",
   "bugs": {
-    "url": "https://github.com/gash21/jokoui-mcp-server/issues"
+    "url": "https://github.com/Gash21/i-just-ask-jokoui/issues"
   },
   "devDependencies": {
     "@types/cheerio": "^0.22.35",

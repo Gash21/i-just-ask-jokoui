@@ -178,7 +178,7 @@ const FetchAndImplementComponentSchema = z.object({
 
 const server = new Server(
   {
-    name: "jokoui-mcp-server",
+    name: "i-just-ask-jokoui",
     version: "1.0.0",
   },
   {
@@ -194,7 +194,7 @@ async function fetchComponentCode(url: string): Promise<string> {
     console.error(`Fetching from: ${url}`);
     const response = await fetch(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; JokoUI-MCP-Server/1.0)'
+        'User-Agent': 'Mozilla/5.0 (compatible; I-Just-Ask-JokoUI/1.0)'
       }
     });
 

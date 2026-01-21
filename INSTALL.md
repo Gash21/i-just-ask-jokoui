@@ -33,17 +33,17 @@ If you want to use the package without building from source:
 
 ```bash
 # Global installation (recommended for general use)
-npm install -g @gash21/jokoui-mcp-server
+npm install -g @gash21/i-just-ask-jokoui
 
 # Local installation
-npm install @gash21/jokoui-mcp-server
+npm install @gash21/i-just-ask-jokoui
 ```
 
 ### Option C: Manual Build & Install
 
 ```bash
-git clone https://github.com/gash21/jokoui-mcp-server.git
-cd jokoui-mcp-server
+git clone https://github.com/Gash21/i-just-ask-jokoui.git
+cd i-just-ask-jokoui
 npm install
 npm run build
 # The executable will be at ./dist/index.js
@@ -65,7 +65,7 @@ Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) o
     "jokoui": {
       "command": "node",
       "args": [
-        "/absolute/path/to/jokoui-mcp-server/dist/index.js"
+        "/absolute/path/to/i-just-ask-jokoui/dist/index.js"
       ]
     }
   }
@@ -82,7 +82,7 @@ Edit `~/.config/opencode/opencode.json`.
     "jokoui": {
       "command": "node",
       "args": [
-        "/absolute/path/to/jokoui-mcp-server/dist/index.js"
+        "/absolute/path/to/i-just-ask-jokoui/dist/index.js"
       ]
     }
   }
@@ -97,7 +97,7 @@ Add to your `.cursorrules` or project configuration:
 # Add to .cursorrules
 You can access Joko UI components directly via MCP. The server is located at:
 
-File: /absolute/path/to/jokoui-mcp-server/dist/index.js
+File: /absolute/path/to/i-just-ask-jokoui/dist/index.js
 
 Available Tools:
 [See TOOLS.md for full list]
