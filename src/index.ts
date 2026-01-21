@@ -9,7 +9,6 @@ import {
   ReadResourceRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
-import * as cheerio from "cheerio";
 import * as fs from "fs/promises";
 import * as path from "path";
 
@@ -20,131 +19,76 @@ export interface JokoComponent {
   description: string;
   tags: string[];
   url?: string;
-  features: string[];
 }
 
-const JOKO_UI_COMPONENTS: JokoComponent[] = [
-  {
-    id: "auth-forms",
-    name: "Authentication Forms",
-    category: "application",
-    description: "Login, register, and password reset forms with validation",
-    tags: ["auth", "form", "login", "register", "validation"],
-    url: "https://jokoui.web.id/components/application/auth-forms",
-    features: [
-      "Login form with email/password",
-      "Registration form",
-      "Password reset flow",
-      "Form validation",
-      "Responsive design"
-    ]
-  },
-  {
-    id: "dashboard",
-    name: "Dashboard",
-    category: "application",
-    description: "Admin dashboard with sidebar, stats, and navigation",
-    tags: ["dashboard", "admin", "sidebar", "stats"],
-    url: "https://jokoui.web.id/components/application/dashboard",
-    features: [
-      "Sidebar navigation",
-      "Statistics cards",
-      "Data tables",
-      "User profile",
-      "Responsive layout"
-    ]
-  },
-  {
-    id: "settings-page",
-    name: "Settings Page",
-    category: "application",
-    description: "User settings page with tabs and form controls",
-    tags: ["settings", "profile", "form", "tabs"],
-    url: "https://jokoui.web.id/components/application/settings-page",
-    features: [
-      "Tabbed navigation",
-      "Form inputs",
-      "Toggle switches",
-      "Profile management",
-      "Save changes"
-    ]
-  },
-  {
-    id: "data-display",
-    name: "Data Display",
-    category: "application",
-    description: "Tables, cards, and charts for displaying data",
-    tags: ["table", "chart", "data", "display"],
-    url: "https://jokoui.web.id/components/application/data-display",
-    features: [
-      "Responsive tables",
-      "Data cards",
-      "Chart visualizations",
-      "Pagination",
-      "Filtering and sorting"
-    ]
-  },
-  {
-    id: "hero-section",
-    name: "Hero Section",
-    category: "marketing",
-    description: "Eye-catching hero sections with CTAs",
-    tags: ["hero", "landing", "cta", "header"],
-    url: "https://jokoui.web.id/components/marketing/hero-section",
-    features: [
-      "Headline and subheadline",
-      "Call-to-action buttons",
-      "Background images",
-      "Responsive layout",
-      "Dark mode support"
-    ]
-  },
-  {
-    id: "feature-grid",
-    name: "Feature Grid",
-    category: "marketing",
-    description: "Grid layouts showcasing product features",
-    tags: ["features", "grid", "icons", "cards"],
-    url: "https://jokoui.web.id/components/marketing/feature-grid",
-    features: [
-      "Feature cards with icons",
-      "Grid layouts",
-      "Responsive breakpoints",
-      "Hover effects",
-      "Dark mode support"
-    ]
-  },
-  {
-    id: "pricing-table",
-    name: "Pricing Table",
-    category: "marketing",
-    description: "Pricing plans with comparison features",
-    tags: ["pricing", "table", "plans", "comparison"],
-    url: "https://jokoui.web.id/components/marketing/pricing-table",
-    features: [
-      "Multiple pricing tiers",
-      "Feature comparison",
-      "Highlighted popular plan",
-      "CTA buttons",
-      "Responsive design"
-    ]
-  },
-  {
-    id: "footer",
-    name: "Footer",
-    category: "marketing",
-    description: "Site footers with links and information",
-    tags: ["footer", "links", "navigation", "bottom"],
-    url: "https://jokoui.web.id/components/marketing/footer",
-    features: [
-      "Multiple columns",
-      "Navigation links",
-      "Social media links",
-      "Copyright info",
-      "Responsive layout"
-    ]
+const GITHUB_API_BASE = "https://api.github.com/repos/rayasabari/joko-ui/contents/lib/data/components";
+const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/rayasabari/joko-ui/main/lib/data/components";
+const JOKO_UI_BASE = "https://jokoui.web.id/components";
+
+async function fetchComponentData(): Promise<JokoComponent[]> {
+  try {
+    console.error("Fetching component data from GitHub...");
+
+    const [appResponse, marketingResponse] = await Promise.all([
+      fetch(`${GITHUB_API_BASE}/application`),
+      fetch(`${GITHUB_API_BASE}/marketing`)
+    ]);
+
+    if (!appResponse.ok || !marketingResponse.ok) {
+      throw new Error("Failed to fetch component data from GitHub");
+    }
+
+    const [appData, marketingData] = await Promise.all([
+      appResponse.json() as Promise<any[]>,
+      marketingResponse.json() as Promise<any[]>
+    ]);
+
+    const components: JokoComponent[] = [];
+
+    for (const item of appData) {
+      if (item.type === "file" && item.name.endsWith(".tsx") && item.name !== "index.ts") {
+        const componentName = item.name.replace(".tsx", "");
+        components.push({
+          id: componentName,
+          name: toTitleCase(componentName),
+          category: "application",
+          description: `${toTitleCase(componentName)} component for application UI`,
+          tags: [componentName, "application", "ui"],
+          url: `${JOKO_UI_BASE}/application/${componentName}`
+        });
+      }
+    }
+
+    for (const item of marketingData) {
+      if (item.type === "file" && item.name.endsWith(".tsx") && item.name !== "index.ts") {
+        const componentName = item.name.replace(".tsx", "");
+        components.push({
+          id: componentName,
+          name: toTitleCase(componentName),
+          category: "marketing",
+          description: `${toTitleCase(componentName)} component for marketing pages`,
+          tags: [componentName, "marketing", "ui"],
+          url: `${JOKO_UI_BASE}/marketing/${componentName}`
+        });
+      }
+    }
+
+    console.error(`Fetched ${components.length} components from GitHub`);
+    return components;
+  } catch (error) {
+    console.error("Error fetching component data:", error);
+    return [];
   }
-];
+}
+
+function toTitleCase(str: string): string {
+  return str
+    .split(/[-_]/)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+let JOKO_UI_COMPONENTS: JokoComponent[] = [];
 
 const SearchComponentsSchema = z.object({
   query: z.string().optional().describe("Search query for component name, description, or tags"),
@@ -179,7 +123,7 @@ const FetchAndImplementComponentSchema = z.object({
 const server = new Server(
   {
     name: "i-just-ask-jokoui",
-    version: "1.0.0",
+    version: "2.0.0",
   },
   {
     capabilities: {
@@ -189,12 +133,64 @@ const server = new Server(
   }
 );
 
+async function tryFetchComponentFromGitHub(componentId: string): Promise<{ code: string; category: "application" | "marketing"; url: string } | null> {
+  const categories: ("application" | "marketing")[] = ["application", "marketing"];
+
+  for (const category of categories) {
+    try {
+      const githubRawUrl = `${GITHUB_RAW_BASE}/${category}/${componentId}.tsx`;
+      console.error(`Trying GitHub raw: ${githubRawUrl}`);
+
+      const response = await fetch(githubRawUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; I-Just-Ask-JokoUI/2.0)'
+        }
+      });
+
+      if (response.ok) {
+        const code = await response.text();
+        return {
+          code,
+          category,
+          url: `${JOKO_UI_BASE}/${category}/${componentId}`
+        };
+      }
+    } catch (error) {
+      continue;
+    }
+  }
+
+  return null;
+}
+
 async function fetchComponentCode(url: string): Promise<string> {
   try {
     console.error(`Fetching from: ${url}`);
+
+    if (url.includes("jokoui.web.id")) {
+      const match = url.match(/components\/(application|marketing)\/([^/]+)/);
+      if (match) {
+        const [, category, componentName] = match;
+        const githubRawUrl = `${GITHUB_RAW_BASE}/${category}/${componentName}.tsx`;
+        console.error(`Fetching from GitHub raw: ${githubRawUrl}`);
+
+        const response = await fetch(githubRawUrl, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (compatible; I-Just-Ask-JokoUI/2.0)'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        return await response.text();
+      }
+    }
+
     const response = await fetch(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; I-Just-Ask-JokoUI/1.0)'
+        'User-Agent': 'Mozilla/5.0 (compatible; I-Just-Ask-JokoUI/2.0)'
       }
     });
 
@@ -202,46 +198,7 @@ async function fetchComponentCode(url: string): Promise<string> {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
-    const html = await response.text();
-    const $ = cheerio.load(html);
-
-    let code = "";
-
-    const codeBlocks = $('pre code, code, pre[class*="code"], code[class*="language"]');
-    if (codeBlocks.length > 0) {
-      codeBlocks.each((_, el) => {
-        const blockText = $(el).text();
-        if (blockText.length > code.length) {
-          code = blockText.trim();
-        }
-      });
-    }
-
-    const scriptTags = $('script[type="text/javascript"], script[type="text/babel"], script[type="text/tsx"], script[type="text/ts"]');
-    if (scriptTags.length > 0 && !code) {
-      scriptTags.each((_, el) => {
-        const scriptText = $(el).text();
-        if (scriptText.includes("export") && scriptText.includes("function") && scriptText.length > code.length) {
-          code = scriptText.trim();
-        }
-      });
-    }
-
-    const allCodeElements = $('code, pre, .code, [class*="code"]');
-    if (!code) {
-      allCodeElements.each((_, el) => {
-        const elText = $(el).text();
-        if (elText.length > 50 && elText.length > code.length) {
-          code = elText.trim();
-        }
-      });
-    }
-
-    if (!code) {
-      throw new Error("Could not extract code from component page. The website structure may have changed.");
-    }
-
-    return code;
+    return await response.text();
   } catch (error) {
     console.error("Error fetching component:", error);
     throw error;
@@ -298,7 +255,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           properties: {
             query: {
               type: "string",
-              description: "Search query (e.g., 'auth', 'pricing', 'dashboard', 'hero')"
+              description: "Search query (e.g., 'alert', 'pricing', 'navbar', 'hero')"
             },
             category: {
               type: "string",
@@ -333,7 +290,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           properties: {
             componentId: {
               type: "string",
-              description: "Component ID (e.g., 'auth-forms', 'hero-section', 'pricing-table')"
+              description: "Component ID (e.g., 'alerts', 'buttons', 'heroes', 'pricing')"
             },
             language: {
               type: "string",
@@ -348,17 +305,17 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       {
         name: "fetch_component",
         description: `
-          Fetch actual component code from jokoui.web.id website.
-          This tool scrapes the Joko UI website and extracts the complete
-          source code for any component. Use this to get the latest,
-          production-ready code directly from the official site.
+          Fetch actual component code from Joko UI repository.
+          This tool fetches the complete source code for any component directly
+          from the GitHub repository. Use this to get the latest,
+          production-ready code.
         `,
         inputSchema: {
           type: "object",
           properties: {
             componentId: {
               type: "string",
-              description: "Component ID (e.g., 'auth-forms', 'hero-section')"
+              description: "Component ID (e.g., 'alerts', 'buttons', 'heroes')"
             },
             url: {
               type: "string",
@@ -397,7 +354,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       {
         name: "fetch_and_implement_component",
         description: `
-          Fetch component code from jokoui.web.id and write it to a file.
+          Fetch component code from Joko UI repository and write it to a file.
           Combines fetch_component and implement_component in one step. Perfect
           for quickly adding Joko UI components to your project.
         `,
@@ -406,7 +363,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           properties: {
             componentId: {
               type: "string",
-              description: "Component ID (e.g., 'auth-forms', 'hero-section', 'pricing-table')"
+              description: "Component ID (e.g., 'alerts', 'buttons', 'heroes', 'pricing')"
             },
             outputPath: {
               type: "string",
@@ -541,15 +498,52 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
         const { componentId, language } = parseResult.data;
 
-        const component = JOKO_UI_COMPONENTS.find(c => c.id === componentId);
+        let component = JOKO_UI_COMPONENTS.find(c => c.id === componentId);
 
         if (!component) {
+          console.error(`Component not found in loaded list: ${componentId}. Trying GitHub fallback...`);
+
+          const fallback = await tryFetchComponentFromGitHub(componentId);
+          if (!fallback) {
+            return {
+              content: [{
+                type: "text",
+                text: `Component not found: ${componentId}. Use list_components to see available components.`
+              }],
+              isError: true
+            };
+          }
+
+          const fallbackComponent = {
+            id: componentId,
+            name: toTitleCase(componentId),
+            category: fallback.category,
+            description: `${toTitleCase(componentId)} component for ${fallback.category} UI`,
+            tags: [componentId, fallback.category, "ui"],
+            url: fallback.url
+          };
+
+          const codeTemplate = generateComponentCode(fallbackComponent, language);
+
           return {
             content: [{
               type: "text",
-              text: `Component not found: ${componentId}. Use list_components to see available components.`
-            }],
-            isError: true
+              text: JSON.stringify({
+                component: fallbackComponent,
+                code: codeTemplate,
+                instructions: `
+ Copy and paste this code into your project.
+
+ 1. Ensure you have Tailwind CSS installed and configured
+ 2. Create a new component file (e.g., ${componentId}.tsx)
+ 3. Paste code
+ 4. Customize as needed
+
+ Visit ${fallback.url} to view component live and see more examples.
+ Note: This component was found in the repository but is not yet in the cached component list.
+              `.trim()
+            }, null, 2)
+            }]
           };
         }
 
@@ -568,14 +562,14 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
               },
               code: codeTemplate,
               instructions: `
-Copy and paste this code into your project.
+ Copy and paste this code into your project.
 
-1. Ensure you have Tailwind CSS installed and configured
-2. Create a new component file (e.g., ${componentId}.tsx)
-3. Paste code
-4. Customize as needed
+ 1. Ensure you have Tailwind CSS installed and configured
+ 2. Create a new component file (e.g., ${componentId}.tsx)
+ 3. Paste code
+ 4. Customize as needed
 
-Visit ${component.url} to view component live and see more examples.
+ Visit ${component.url} to view component live and see more examples.
               `.trim()
             }, null, 2)
           }]
@@ -603,22 +597,39 @@ Visit ${component.url} to view component live and see more examples.
           const component = JOKO_UI_COMPONENTS.find(c => c.id === componentId);
 
           if (!component) {
-            return {
-              content: [{
-                type: "text",
-                text: `Component not found: ${componentId}. Use list_components to see available components.`
-              }],
-              isError: true
-            };
-          }
+            console.error(`Component not found in loaded list: ${componentId}. Trying GitHub fallback...`);
 
-          if (!component.url) {
+            const fallback = await tryFetchComponentFromGitHub(componentId);
+            if (!fallback) {
+              return {
+                content: [{
+                  type: "text",
+                  text: `Component not found: ${componentId}. Use list_components to see available components.`
+                }],
+                isError: true
+              };
+            }
+
             return {
               content: [{
                 type: "text",
-                text: `Component ${componentId} does not have a URL. Cannot fetch.`
-              }],
-              isError: true
+                text: JSON.stringify({
+                  source: fallback.url,
+                  code: fallback.code,
+                  component: {
+                    id: componentId,
+                    name: toTitleCase(componentId),
+                    category: fallback.category,
+                    url: fallback.url
+                  },
+                  info: `Successfully fetched component '${componentId}' from GitHub repository (newly added, not in cache)`,
+                  nextSteps: [
+                    "Review the code to understand structure",
+                    "Use 'implement_component' tool to save to file",
+                    "Or use 'fetch_and_implement_component' to do both in one step"
+                  ]
+                }, null, 2)
+              }]
             };
           }
 
@@ -626,7 +637,7 @@ Visit ${component.url} to view component live and see more examples.
         }
 
         try {
-          const code = await fetchComponentCode(url);
+          const code = await fetchComponentCode(url!);
 
           return {
             content: [{
@@ -634,7 +645,7 @@ Visit ${component.url} to view component live and see more examples.
               text: JSON.stringify({
                 source: url || "",
                 code: code,
-                info: "Successfully fetched component code from jokoui.web.id",
+                info: "Successfully fetched component code from Joko UI repository",
                 nextSteps: [
                   "Review the code to understand structure",
                   "Use 'implement_component' tool to save to file",
@@ -647,7 +658,7 @@ Visit ${component.url} to view component live and see more examples.
           return {
             content: [{
               type: "text",
-              text: `Failed to fetch component: ${error instanceof Error ? error.message : String(error)}\n\nTry providing a direct URL or check if the component exists at jokoui.web.id`
+              text: `Failed to fetch component: ${error instanceof Error ? error.message : String(error)}\n\nTry providing a direct URL or check if the component exists in the repository.`
             }],
             isError: true
           };
@@ -715,22 +726,37 @@ Visit ${component.url} to view component live and see more examples.
           const component = JOKO_UI_COMPONENTS.find(c => c.id === componentId);
 
           if (!component) {
-            return {
-              content: [{
-                type: "text",
-                text: `Component not found: ${componentId}. Use list_components to see available components.`
-              }],
-              isError: true
-            };
-          }
+            console.error(`Component not found in loaded list: ${componentId}. Trying GitHub fallback...`);
 
-          if (!component.url) {
+            const fallback = await tryFetchComponentFromGitHub(componentId);
+            if (!fallback) {
+              return {
+                content: [{
+                  type: "text",
+                  text: `Component not found: ${componentId}. Use list_components to see available components.`
+                }],
+                isError: true
+              };
+            }
+
+            const resolvedPath = await writeComponentToFile(fallback.code, outputPath, createDirectories);
             return {
               content: [{
                 type: "text",
-                text: `Component ${componentId} does not have a URL. Cannot fetch.`
-              }],
-              isError: true
+                text: JSON.stringify({
+                  success: true,
+                  component: componentId,
+                  source: fallback.url,
+                  outputPath: resolvedPath,
+                  bytesWritten: fallback.code.length,
+                  info: `Successfully fetched and implemented component '${componentId}' from GitHub repository (newly added, not in cache)`,
+                  nextSteps: [
+                    "Open the file to review the component",
+                    "Import it in your application",
+                    "Customize styling and functionality as needed"
+                  ]
+                }, null, 2)
+              }]
             };
           }
 
@@ -738,20 +764,20 @@ Visit ${component.url} to view component live and see more examples.
         }
 
         try {
-          const code = await fetchComponentCode(url);
+          const code = await fetchComponentCode(url!);
           const resolvedPath = await writeComponentToFile(code, outputPath, createDirectories);
 
           return {
             content: [{
               type: "text",
-                text: JSON.stringify({
-                  success: true,
-                  component: componentId,
-                  source: url || "",
-                  outputPath: resolvedPath,
-                  bytesWritten: code.length,
-                  info: "Successfully fetched and implemented component",
-                  nextSteps: [
+              text: JSON.stringify({
+                success: true,
+                component: componentId,
+                source: url || "",
+                outputPath: resolvedPath,
+                bytesWritten: code.length,
+                info: "Successfully fetched and implemented component",
+                nextSteps: [
                   "Open the file to review the component",
                   "Import it in your application",
                   "Customize styling and functionality as needed"
@@ -802,13 +828,13 @@ server.setRequestHandler(ListResourcesRequestSchema, async () => {
       {
         uri: "jokoui://components/application",
         name: "Application Components",
-        description: "Application UI components (auth forms, dashboards, settings, data display)",
+        description: "Application UI components (alerts, avatars, badges, buttons, cards, forms, loaders, navbars, progress, sidebars, skeleton, breadcrumbs)",
         mimeType: "application/json"
       },
       {
         uri: "jokoui://components/marketing",
         name: "Marketing Components",
-        description: "Marketing UI components (hero sections, feature grids, pricing tables, footers)",
+        description: "Marketing UI components (banners, ctas, description-list, faq, footers, headers, heroes, pricing, stats, teams, testimonials)",
         mimeType: "application/json"
       },
       {
@@ -882,7 +908,7 @@ There is no Joko UI installation. If you have a Tailwind CSS project, you can si
 4. Click on the **'Code'** tab or the **'Copy Code'** button to get the source
 5. Paste the copied code into your project
 
-Note
+**Note**
 
 All components support both Light and Dark modes out of the box using Tailwind's \`dark:\` modifier.
 
@@ -892,25 +918,40 @@ All components support both Light and Dark modes out of the box using Tailwind's
 
 UI components for building functional web applications:
 
-- Authentication Forms
-- Dashboards
-- Settings Pages
-- Data Displays
+- Alerts
+- Avatars
+- Badges
+- Buttons
+- Cards
+- Forms
+- Loaders
+- Navbars
+- Progress
+- Sidebars
+- Skeleton
+- Breadcrumbs
 
 ### [Marketing](/components/marketing)
 
 Components for building high-converting landing pages:
 
-- Hero Sections
-- Feature Grids
-- Pricing Tables
+- Banners
+- CTAs
+- Description Lists
+- FAQs
 - Footers
+- Headers
+- Heroes
+- Pricing
+- Stats
+- Teams
+- Testimonials
 
 ## MCP Server Tools
 
 This MCP server provides tools to:
 
-- **fetch_component**: Fetch actual code from jokoui.web.id
+- **fetch_component**: Fetch actual code from Joko UI repository
 - **implement_component**: Write code to a file
 - **fetch_and_implement_component**: Do both in one step
 
@@ -920,6 +961,7 @@ This MCP server provides tools to:
 - **No Install**: No npm packages to manage
 - **No Setup**: Just copy, paste, and customize
 - **Dark Mode**: All components support light and dark modes
+- **Up to Date**: Fetches directly from GitHub repository
 
 ## Website
 
@@ -988,6 +1030,12 @@ export default ${component.name.replace(/\s+/g, '')};
 }
 
 async function main() {
+  JOKO_UI_COMPONENTS = await fetchComponentData();
+
+  if (JOKO_UI_COMPONENTS.length === 0) {
+    console.error("Warning: No components loaded. Using fallback data if available.");
+  }
+
   const transport = new StdioServerTransport();
   await server.connect(transport);
   console.error("Joko UI MCP Server running on stdio");
