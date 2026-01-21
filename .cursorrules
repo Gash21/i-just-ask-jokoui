@@ -1,0 +1,18 @@
+
+# I Just Ask JokoUI MCP Server Configuration
+You can access Joko UI components directly via MCP. The server is located at:
+
+File: $DIST_PATH
+
+Available Tools:
+- list_components: Browse all Joko UI components
+- search_components: Search by name, description, or tags
+- get_component_code: Get component code templates
+- fetch_component: Fetch actual code from jokoui.web.id
+- implement_component: Write component code to a file
+- fetch_and_implement_component: Combined fetch + write operation
+
+Usage Examples:
+- "Show me all Joko UI components"
+- "Find hero section component and implement it in ./src/components/Hero.tsx"
+- "Search for pricing tables"

@@ -27,7 +27,7 @@ The easiest way to install and configure the server for Claude Desktop, OpenCode
 
 ```bash
 Install and configure I Just Ask - Joko UI (MCP Server) by following the instructions here:
-https://github.com/Gash21/i-just-ask-jokoui/blob/main/INSTALL.md
+https://raw.githubusercontent.com/Gash21/i-just-ask-jokoui/refs/heads/main/INSTALL.md
 ```
 
 ### For AI Agents

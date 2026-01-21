@@ -120,6 +120,11 @@ detect_environment() {
         info "Detected environment: Claude Desktop"
     fi
 
+    if command -v claude &> /dev/null; then
+        CODE_EDITOR="claude-code"
+        info "Detected environment: Claude Code (CLI)"
+    fi
+
     if [ -n "$CONTINUE" ]; then
         CODE_EDITOR="continue-dev"
         info "Detected environment: Continue.dev"
@@ -137,7 +142,7 @@ install_for_claude_desktop() {
     if [ -f "$config_file" ]; then
         info "Updating existing Claude Desktop config..."
         if command -v jq &> /dev/null; then
-            tmp_config=$(jq --argjson "$DIST_PATH" '.mcpServers.jokoui.command = "node" | .mcpServers.jokoui.args = ["$DIST_PATH"]' "$config_file")
+            tmp_config=$(jq --arg DIST_PATH "$DIST_PATH" '.mcpServers.jokoui.command = "node" | .mcpServers.jokoui.args = ["$DIST_PATH"]' "$config_file")
             echo "$tmp_config" > "$config_file"
             success "Updated claude_desktop_config.json"
         else
@@ -173,6 +178,48 @@ EOF
     info "Please restart Claude Desktop to load the MCP server."
 }
 
+install_for_claude_code() {
+    info "Configuring for Claude Code (CLI)..."
+
+    local config_file="$HOME/.claude.json"
+    local config_dir=$(dirname "$config_file")
+
+    # Ensure dir exists (though it usually is home)
+    # mkdir -p "$config_dir" 
+
+    if [ -f "$config_file" ]; then
+        info "Updating existing Claude Code config..."
+        if command -v jq &> /dev/null; then
+            tmp_config=$(jq --arg DIST_PATH "$DIST_PATH" '.mcpServers.jokoui.command = "node" | .mcpServers.jokoui.args = ["$DIST_PATH"]' "$config_file")
+            echo "$tmp_config" > "$config_file"
+            success "Updated .claude.json"
+        else
+            warn "jq not found. Updating manually..."
+            # Simple manual append fallback for Claude Code is risky due to JSON structure, 
+            # but we'll try to use a template if file is empty-ish or warn user.
+            warn "Manual JSON editing for Claude Code without jq is not fully supported in this script version."
+            warn "Please install 'jq' for automatic configuration."
+        fi
+    else
+        info "Creating new Claude Code config..."
+        cat > "$config_file" << EOF
+{
+  "mcpServers": {
+    "jokoui": {
+      "command": "node",
+      "args": ["$DIST_PATH"]
+    }
+  }
+}
+EOF
+        success "Created .claude.json"
+    fi
+
+    echo ""
+    success "Configuration complete!"
+    info "Claude Code should now have access to 'jokoui' tool."
+}
+
 install_for_opencode() {
     info "Configuring for OpenCode..."
 
@@ -185,7 +232,7 @@ install_for_opencode() {
         info "Updating existing OpenCode config..."
 
         if command -v jq &> /dev/null; then
-            tmp_config=$(jq --argjson "$DIST_PATH" '.mcp.jokoui.command = "node" | .mcp.jokoui.args = ["$DIST_PATH"]' "$config_file")
+            tmp_config=$(jq --arg DIST_PATH "$DIST_PATH" '.mcp.jokoui.command = ["node", $DIST_PATH] | .mcp.jokoui.enabled = true | .mcp.jokoui.type = "local" | del(.mcp.jokoui.args)' "$config_file")
             echo "$tmp_config" > "$config_file"
             success "Updated opencode.json"
         else
@@ -194,10 +241,12 @@ install_for_opencode() {
 {
   "mcp": {
     "jokoui": {
-      "command": "node",
-      "args": [
+      "command": [
+        "node",
         "$DIST_PATH"
-      ]
+      ],
+      "enabled": true,
+      "type": "local"
     }
   }
 }
@@ -209,10 +258,12 @@ EOF
 {
   "mcp": {
     "jokoui": {
-      "command": "node",
-      "args": [
+      "command": [
+        "node",
         "$DIST_PATH"
-      ]
+      ],
+      "enabled": true,
+      "type": "local"
     }
   }
 }
@@ -328,7 +379,7 @@ install_generic() {
     if [ -f "$config_file" ]; then
         info "Updating existing $tool_name config..."
         if command -v jq &> /dev/null; then
-            tmp_config=$(jq --argjson "$DIST_PATH" '.mcp.jokoui.command = "node" | .mcp.jokoui.args = ["$DIST_PATH"]' "$config_file")
+            tmp_config=$(jq --arg DIST_PATH "$DIST_PATH" '.mcp.jokoui.command = "node" | .mcp.jokoui.args = ["$DIST_PATH"]' "$config_file")
             echo "$tmp_config" > "$config_file"
             success "Updated config"
         else
@@ -385,6 +436,7 @@ ${CYAN}Tools (auto-detected if no tool specified):${NC}
   ${GREEN}claude${NC}          Claude Desktop
   ${GREEN}opencode${NC}        OpenCode
   ${GREEN}cursor${NC}          Cursor
+  ${GREEN}claudecode${NC}      Claude Code (CLI)
   ${GREEN}continue${NC}        Continue.dev
   ${GREEN}coder${NC}           Coder / VS Code + Claude
   ${GREEN}all${NC}            Configure all available tools
@@ -536,10 +588,11 @@ show_menu() {
     echo -e "${CYAN}│${NC}  ${GREEN}[1]${NC} Claude Desktop                          ${CYAN}│${NC}"
     echo -e "${CYAN}│${NC}  ${GREEN}[2]${NC} OpenCode                                ${CYAN}│${NC}"
     echo -e "${CYAN}│${NC}  ${GREEN}[3]${NC} Cursor                                  ${CYAN}│${NC}"
-    echo -e "${CYAN}│${NC}  ${GREEN}[4]${NC} Continue.dev                              ${CYAN}│${NC}"
-    echo -e "${CYAN}│${NC}  ${GREEN}[5]${NC} Coder / VS Code + Claude                   ${CYAN}│${NC}"
-    echo -e "${CYAN}│${NC}  ${GREEN}[6]${NC} All Tools                               ${CYAN}│${NC}"
-    echo -e "${CYAN}│${NC}  ${GREEN}[7]${NC} Help                                    ${CYAN}│${NC}"
+    echo -e "${CYAN}│${NC}  ${GREEN}[4]${NC} Claude Code (CLI)                       ${CYAN}│${NC}"
+    echo -e "${CYAN}│${NC}  ${GREEN}[5]${NC} Continue.dev                            ${CYAN}│${NC}"
+    echo -e "${CYAN}│${NC}  ${GREEN}[6]${NC} Coder / VS Code + Claude                ${CYAN}│${NC}"
+    echo -e "${CYAN}│${NC}  ${GREEN}[7]${NC} All Tools                               ${CYAN}│${NC}"
+    echo -e "${CYAN}│${NC}  ${GREEN}[8]${NC} Help                                    ${CYAN}│${NC}"
     echo -e "${CYAN}│${NC}  ${GREEN}[0]${NC} Exit                                    ${CYAN}│${NC}"
     echo -e "${CYAN}└────────────────────────────────────────────────────────┘${NC}"
     echo ""
@@ -557,16 +610,28 @@ show_menu() {
             install_for_cursor
             ;;
         4)
-            install_for_continue
+            install_for_claude_code
             ;;
         5)
-            install_for_coder "Coder"
+            install_for_continue
             ;;
         6)
-            install_generic "Continue.dev" "$HOME/.continue/config.json"
+            install_for_coder "Coder"
             ;;
         7)
+            install_generic "Continue.dev" "$HOME/.continue/config.json"
             install_for_generic "Zed" "$HOME/.zed/settings.json"
+            # Note: "All Tools" logic in menu needs to match the new numbering
+            install_for_claude_desktop
+            install_for_opencode
+            install_for_cursor
+            install_for_claude_code
+            install_for_continue
+            echo ""
+            success "All tools configured!"
+            ;;
+        8)
+            show_help
             ;;
         0)
             show_help
@@ -607,7 +672,7 @@ main() {
                 USE_NPM=true
                 shift
                 ;;
-            claude|opencode|cursor|continue|coder|zed|all)
+            claude|opencode|cursor|claudecode|continue|coder|zed|all)
                 tool="$1"
                 shift
                 ;;
@@ -648,6 +713,9 @@ main() {
             cursor)
                 install_for_cursor
                 ;;
+            claudecode)
+                install_for_claude_code
+                ;;
             continue)
                 install_for_continue
                 ;;
@@ -658,6 +726,7 @@ main() {
                 install_for_claude_desktop
                 install_for_opencode
                 install_for_cursor
+                install_for_claude_code
                 install_for_continue
                 install_for_coder "Zed" "$HOME/.zed/settings.json"
                 echo ""
